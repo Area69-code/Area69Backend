@@ -52,8 +52,11 @@ def chat():
 		]
 	)
 	return jsonify({"response": response["choices"][0]["message"]["content"]})
+except openai.error.RateLimitError:
+	return jsonify({"error": "Ratelimit exceeded. Please slow down or upgrade your plan."}), 429
+
 except Exception as e:
-	return jsonify({"error": str(e)}), 500
+	return jsonify({"error": f"Server Error: {str(e)}"}), 500
 
 
 ### 📊 Market Sentiment Analysis
