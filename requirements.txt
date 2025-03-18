@@ -5,3 +5,7 @@ python-dotenv==1.0.0
 gunicorn==20.1.0
 Flask-CORS==4.0.0
 Flask-Limiter==3.3.1
+ccxt==4.1.99
+beautifulsoup4==4.12.2
+textblob==0.17.1
+requests==2.31.0
