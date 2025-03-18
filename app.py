@@ -27,6 +27,10 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["10 per minute"])
 COINGECKO_API_URL = "https://api.coingecko.com/api/v3/simple/price"
 COINMARKETCAP_API_URL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
 
+@app.route("/")
+def home():
+	return "API is Running"
+
 ### 🚀 AI Chatbot Endpoint
 @app.route("/chat", methods=["POST"])
 @limiter.limit("5 per minute")
