@@ -42,7 +42,7 @@ def chat():
 
 	try:
 		response = openai.ChatCompletion.create(
-			model="gpt-4",
+			model="gpt-3.5-turbo",
 			messages=[
 				{"role": "system", "content": "You are an AI crypto expert with an alien theme."},
 				{"role": "user", "content": user_message}
