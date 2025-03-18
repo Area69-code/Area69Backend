@@ -6,6 +6,7 @@ from flask_limiter.util import get_remote_address
 import openai
 import os
 from dotenv import load_dotenv
+from werkzeug.urls import url_quote
 
 # Load environment variables from .env file
 load_dotenv()
