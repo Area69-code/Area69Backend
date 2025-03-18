@@ -32,7 +32,7 @@ COINMARKETCAP_API_URL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quo
 
 @app.route("/")
 def home():
-return "🚀 Area69 AI Crypto API is Running"
+	return "🚀 Area69 AI Crypto API is Running"
 
 ### 🚀 AI Chatbot Endpoint
 @app.route("/chat", methods=["POST"])
