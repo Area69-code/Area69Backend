@@ -45,18 +45,18 @@ def chat():
 
 	try:
 		response = openai.ChatCompletion.create(
-		model="gpt-4-turbo",
-		messages=[
-			{"role": "system", "content": "You are an AI crypto expert with an alien theme."},
-			{"role": "user", "content": user_message}
-		]
-	)
-	return jsonify({"response": response["choices"][0]["message"]["content"]})
-except openai.error.RateLimitError:
-	return jsonify({"error": "Ratelimit exceeded. Please slow down or upgrade your plan."}), 429
+			model="gpt-4-turbo",
+			messages=[
+				{"role": "system", "content": "You are an AI crypto expert with an alien theme."},
+				{"role": "user", "content": user_message}
+			]
+		)
+		return jsonify({"response": response["choices"][0]["message"]["content"]})
+	except openai.error.RateLimitError:
+		return jsonify({"error": "Ratelimit exceeded. Please slow down or upgrade your plan."}), 429
 
-except Exception as e:
-	return jsonify({"error": f"Server Error: {str(e)}"}), 500
+	except Exception as e:
+		return jsonify({"error": f"Server Error: {str(e)}"}), 500
 
 
 ### 📊 Market Sentiment Analysis
