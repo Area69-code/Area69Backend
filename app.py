@@ -51,7 +51,7 @@ def chat():
 			{"role": "user", "content": user_message}
 		]
 	)
-	return jsonify({"response": response["choices"][0]["message"]["content"]})
+		return jsonify({"response": response["choices"][0]["message"]["content"]})
 except Exception as e:
 	return jsonify({"error": str(e)}), 500
 
