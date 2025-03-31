@@ -16,7 +16,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-limiter = Limiter(get_remote_address, app=app, default_limits=["10 per minute"])
+#limiter = Limiter(get_remote_address, app=app, default_limits=["10 per minute"])
 # MongoDB Connection
 # mongo_client = MongoClient(os.getenv('MONGO_URI'))
 # db = mongo_client['area69_ai']
@@ -30,7 +30,7 @@ def home():
 
 ### 🚀 AI Chatbot Endpoint
 @app.route("/chat", methods=["POST"])
-@limiter.limit("5 per minute")
+#@limiter.limit("5 per minute")
 def chat():
 	user_message = request.json.get("message", "")
 
@@ -46,8 +46,8 @@ def chat():
 			]
 		)
 		return jsonify({"response": response["choices"][0]["message"]["content"]})
-	except openai.error.RateLimitError:
-		return jsonify({"error": "Ratelimit exceeded. Please slow down or upgrade your plan."}), 429
+	#except openai.error.RateLimitError:
+	#	return jsonify({"error": "Ratelimit exceeded. Please slow down or upgrade your plan."}), 429
 
 	except Exception as e:
 		return jsonify({"error": f"Server Error: {str(e)}"}), 500
