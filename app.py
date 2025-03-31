@@ -2,36 +2,71 @@ from flask import Flask, request, jsonify
 import os
 import requests
 import datetime
+import openai
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+app = Flask(__name__)
+CORS(app)
+
+
+limiter = Limiter(get_remote_address, app=app, default_limits=["10 per minute"])
 # MongoDB Connection
 # mongo_client = MongoClient(os.getenv('MONGO_URI'))
 # db = mongo_client['area69_ai']
 # chat_collection = db['chat_history']
 
 # Chat with AI
-@app.route('/chat', methods=['POST'])
-def chat():
-    data = request.json
-    user_message = data.get('message')
-    if not user_message:
-        return jsonify({'error': 'No message provided'}), 400
 
-    try:
-        ai_response = generate_multilingual_response(user_message)
-        chat_collection.insert_one({
-            'user_message': user_message,
-            'ai_response': ai_response,
-            'timestamp': datetime.datetime.utcnow()
-        })
-        return jsonify({'user_message': user_message, 'ai_response': ai_response})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+@app.route("/")
+def home():
+	return "🚀 Area69 AI Crypto API is Running"
+
+### 🚀 AI Chatbot Endpoint
+@app.route("/chat", methods=["POST"])
+@limiter.limit("5 per minute")
+def chat():
+	user_message = request.json.get("message", "")
+
+	if not user_message:
+		return jsonify({"error": "No message provided"}), 400
+
+	try:
+		response = openai.ChatCompletion.create(
+			model="gpt-4-turbo",
+			messages=[
+				{"role": "system", "content": "You are an AI crypto expert with an alien theme."},
+				{"role": "user", "content": user_message}
+			]
+		)
+		return jsonify({"response": response["choices"][0]["message"]["content"]})
+	except openai.error.RateLimitError:
+		return jsonify({"error": "Ratelimit exceeded. Please slow down or upgrade your plan."}), 429
+
+	except Exception as e:
+		return jsonify({"error": f"Server Error: {str(e)}"}), 500
+
+#@app.route('/chat', methods=['POST'])
+#def chat():
+ #   data = request.json
+  #  user_message = data.get('message')
+   # if not user_message:
+    #    return jsonify({'error': 'No message provided'}), 400
+#
+ #   try:
+  #      ai_response = generate_multilingual_response(user_message)
+   #     chat_collection.insert_one({
+    #        'user_message': user_message,
+     #       'ai_response': ai_response,
+      #      'timestamp': datetime.datetime.utcnow()
+       # })
+        #return jsonify({'user_message': user_message, 'ai_response': ai_response})
+    #except Exception as e:
+     #   return jsonify({'error': str(e)}), 500
 
 # Whale Tracking (Solana)
 #@app.route('/whale-tracking', methods=['GET'])
