@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
 import os
 import requests
+from flask_cors import CORS
 import datetime
 import openai
+from flask_limiter import Limiter
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
