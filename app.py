@@ -65,14 +65,15 @@ def whale_tracking():
 
     try:
         url = f'{solscan_api_url}?account={wallet_address}&limit=20'
-        print(f"[DEBUG] Solscan API URL: {url}")
-    
+        print(f"[DEBUG] Fetching transactions from: {url}")
+
         response = requests.get(url)
-        print(f"[DEBUG] Status Code: {response.status_code}")
-        print(f"[DEBUG] Raw Response: {response.text}")
+        print(f"[DEBUG] Solscan Status Code: {response.status_code}")
+        print(f"[DEBUG] Solscan Raw Response: {response.text[:500]}")  # limit log to 500 characters
 
         data = response.json()
-        # TEMP FIX: return unfiltered transactions
+        transactions = data if isinstance(data, list) else data.get('data', [])
+
         whale_transactions = transactions[:5]
 
         if not whale_transactions:
@@ -86,8 +87,10 @@ def whale_tracking():
             'whale_transactions': whale_transactions,
             'analysis': ai_response
         })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+
+except Exception as e:
+    print(f"[ERROR] Whale Tracking Failed: {str(e)}")
+    return jsonify({'error': f'Whale Tracking Failed: {str(e)}'}), 500
 
 # Market Sentiment Analysis
 @app.route('/sentiment', methods=['GET'])
