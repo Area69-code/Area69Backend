@@ -14,6 +14,13 @@ CORS(app)
 # OpenAI Setup
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+SOLANA_WHALES = [
+    "6u9JcV7FsH3hCS8rjMN1RfVyae7oynSEkDf7VZx3uTCL",
+    "HngDSjep8DnQ9uTgTxDZpjE8ABbrzk3a5RVC9S6zFsc2",
+    "H5oeTUnkekuwyfp2LutbdSyPRhzrJz1yH58zTXRCEebc",
+    "3oLJ6ZT9a7yHezzg7yAkUw3Xy8FDEevBoEB4K9YUN9F7"
+]
+
 def generate_multilingual_response(user_message):
     try:
         response = openai.ChatCompletion.create(
@@ -49,24 +56,32 @@ def chat():
 @app.route('/whale-tracking', methods=['GET'])
 def whale_tracking():
     threshold = float(request.args.get('threshold', 10000))
-    wallet_address = request.args.get('address', '11111111111111111111111111111111')
+    wallet_address = request.args.get('address')
     solscan_api_url = os.getenv('SOLSCAN_API_URL')
 
+    # If no address provided, pick a random whale wallet
+    if not wallet_address:
+        wallet_address = random.choice(SOLANA_WHALES)
+
     try:
-        url = f'{solscan_api_url}?address={wallet_address}'
+        url = f'{solscan_api_url}?account={wallet_address}&limit=20'
         response = requests.get(url)
         data = response.json()
-        transactions = data.get('data', [])
+        transactions = data if isinstance(data, list) else data.get('data', [])
 
-        whale_transactions = [tx for tx in transactions if float(tx.get('lamports', 0)) / 1e9 >= threshold]
+        whale_transactions = [tx for tx in transactions if float(tx.get('lamport', 0)) / 1e9 >= threshold]
 
         if not whale_transactions:
-            return jsonify({'message': 'No whale activity detected'})
+            return jsonify({'message': f'No whale activity detected for {wallet_address}'})
 
-        ai_prompt = f"Analyze these Solana whale transactions: {whale_transactions[:5]}"
+        ai_prompt = f"Analyze these Solana whale transactions from {wallet_address}: {whale_transactions[:5]}"
         ai_response = generate_multilingual_response(ai_prompt)
 
-        return jsonify({'whale_transactions': whale_transactions[:5], 'analysis': ai_response})
+        return jsonify({
+            'wallet': wallet_address,
+            'whale_transactions': whale_transactions[:5],
+            'analysis': ai_response
+        })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
