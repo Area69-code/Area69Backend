@@ -4,6 +4,7 @@ import requests
 from flask_cors import CORS
 import openai
 from dotenv import load_dotenv
+import random
 
 # Load environment variables
 load_dotenv()
