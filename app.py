@@ -64,7 +64,6 @@ def whale_tracking():
         if not solscan_api_url:
             raise Exception("SOLSCAN_API_URL is not set in environment variables.")
 
-        # If no address provided, pick a random whale wallet
         if not wallet_address:
             wallet_address = random.choice(SOLANA_WHALES)
 
@@ -72,8 +71,14 @@ def whale_tracking():
         print(f"[DEBUG] Requesting Solscan URL: {url}")
 
         response = requests.get(url)
-        print(f"[DEBUG] Response status: {response.status_code}")
-        print(f"[DEBUG] Response body: {response.text[:300]}")  # log first 300 chars
+        print(f"[DEBUG] Solscan Status Code: {response.status_code}")
+        print(f"[DEBUG] Solscan Raw Response: {response.text[:300]}")
+
+        if response.status_code != 200:
+            raise Exception(f"Solscan API returned {response.status_code}: {response.text}")
+
+        if not response.text.strip():
+            raise Exception("Solscan API returned empty response.")
 
         data = response.json()
         transactions = data if isinstance(data, list) else data.get('data', [])
