@@ -20,7 +20,9 @@ def generate_multilingual_response(user_message):
             model="gpt-4-turbo",
             messages=[{"role": "user", "content": user_message}]
         )
-        return response.choices[0].message['content']
+        # Format the response by splitting into lines/paragraphs
+        structured_response = "\n\n".join([line.strip() for line in ai_text.split("\n") if line.strip()])
+        return structured_response
     except Exception as e:
         return str(e)
 
