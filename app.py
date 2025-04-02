@@ -17,14 +17,16 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 def generate_multilingual_response(user_message):
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": user_message}]
         )
-        # Format the response by splitting into lines/paragraphs
-        structured_response = "\n\n".join([line.strip() for line in ai_text.split("\n") if line.strip()])
-        return structured_response
+        if response and response.choices:
+            ai_text = response.choices[0].message['content']
+            structured_response = "\n\n".join([line.strip() for line in ai_text.split("\n") if line.strip()])
+            return structured_response
+        else:
+            return "AI response not available."
     except Exception as e:
-        return str(e)
 
 # Chat Endpoint
 @app.route('/chat', methods=['POST'])
