@@ -27,6 +27,8 @@ def generate_multilingual_response(user_message):
         else:
             return "AI response not available."
     except Exception as e:
+        return f"Error generating AI response: {str(e)}"
+
 
 # Chat Endpoint
 @app.route('/chat', methods=['POST'])
