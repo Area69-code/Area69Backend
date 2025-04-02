@@ -69,17 +69,18 @@ def whale_tracking():
         data = response.json()
         transactions = data if isinstance(data, list) else data.get('data', [])
 
-        whale_transactions = [tx for tx in transactions if float(tx.get('lamport', 0)) / 1e9 >= threshold]
+        # TEMP FIX: return unfiltered transactions
+        whale_transactions = transactions[:5]
 
         if not whale_transactions:
             return jsonify({'message': f'No whale activity detected for {wallet_address}'})
 
-        ai_prompt = f"Analyze these Solana whale transactions from {wallet_address}: {whale_transactions[:5]}"
+        ai_prompt = f"Analyze these Solana whale transactions from {wallet_address}: {whale_transactions}"
         ai_response = generate_multilingual_response(ai_prompt)
 
         return jsonify({
             'wallet': wallet_address,
-            'whale_transactions': whale_transactions[:5],
+            'whale_transactions': whale_transactions,
             'analysis': ai_response
         })
     except Exception as e:
