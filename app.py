@@ -53,36 +53,30 @@ def chat():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Whale Tracking (Solana)
 @app.route('/whale-tracking', methods=['GET'])
 def whale_tracking():
     try:
         threshold = float(request.args.get('threshold', 10000))
         wallet_address = request.args.get('address')
-        solscan_api_url = os.getenv('SOLSCAN_API_URL')
+        helius_api_key = os.getenv('HELIUS_API_KEY')
 
-        if not solscan_api_url:
-            raise Exception("SOLSCAN_API_URL is not set in environment variables.")
+        if not helius_api_key:
+            raise Exception("HELIUS_API_KEY is not set in environment variables.")
 
         if not wallet_address:
             wallet_address = random.choice(SOLANA_WHALES)
 
-        # Use proxy to bypass Solscan block
-        url = f'https://corsproxy.io/?{solscan_api_url}?account={wallet_address}&limit=20'
-        print(f"[DEBUG] Requesting Proxied Solscan URL: {url}")
+        url = f"https://api.helius.xyz/v0/addresses/{wallet_address}/transactions?api-key={helius_api_key}&limit=10"
+        print(f"[DEBUG] Requesting Helius URL: {url}")
 
         response = requests.get(url)
-        print(f"[DEBUG] Solscan Status Code: {response.status_code}")
-        print(f"[DEBUG] Solscan Raw Response: {response.text[:300]}")
+        print(f"[DEBUG] Helius Status: {response.status_code}")
+        print(f"[DEBUG] Helius Response: {response.text[:300]}")
 
         if response.status_code != 200:
-            raise Exception(f"Solscan API returned {response.status_code}: {response.text}")
+            raise Exception(f"Helius API error {response.status_code}: {response.text}")
 
-        if not response.text.strip():
-            raise Exception("Solscan API returned empty response.")
-
-        data = response.json()
-        transactions = data if isinstance(data, list) else data.get('data', [])
+        transactions = response.json()
 
         whale_transactions = transactions[:5] if transactions else []
 
@@ -97,9 +91,11 @@ def whale_tracking():
             'whale_transactions': whale_transactions,
             'analysis': ai_response
         })
+
     except Exception as e:
         print(f"[ERROR] Whale Tracking Failed: {str(e)}")
         return jsonify({'error': f'Whale Tracking Failed: {str(e)}'}), 500
+
 
 
 # Market Sentiment Analysis
