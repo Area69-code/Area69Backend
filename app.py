@@ -55,29 +55,32 @@ def chat():
 # Whale Tracking (Solana)
 @app.route('/whale-tracking', methods=['GET'])
 def whale_tracking():
-    threshold = float(request.args.get('threshold', 10000))
-    wallet_address = request.args.get('address')
-    solscan_api_url = os.getenv('SOLSCAN_API_URL')
-
-    # If no address provided, pick a random whale wallet
-    if not wallet_address:
-        wallet_address = random.choice(SOLANA_WHALES)
-
     try:
+        threshold = float(request.args.get('threshold', 10000))
+        wallet_address = request.args.get('address')
+        solscan_api_url = os.getenv('SOLSCAN_API_URL')
+
+        if not solscan_api_url:
+            raise Exception("SOLSCAN_API_URL is not set in environment variables.")
+
+        # If no address provided, pick a random whale wallet
+        if not wallet_address:
+            wallet_address = random.choice(SOLANA_WHALES)
+
         url = f'{solscan_api_url}?account={wallet_address}&limit=20'
-        print(f"[DEBUG] Fetching transactions from: {url}")
+        print(f"[DEBUG] Requesting Solscan URL: {url}")
 
         response = requests.get(url)
-        print(f"[DEBUG] Solscan Status Code: {response.status_code}")
-        print(f"[DEBUG] Solscan Raw Response: {response.text[:500]}")  # limit log to 500 characters
+        print(f"[DEBUG] Response status: {response.status_code}")
+        print(f"[DEBUG] Response body: {response.text[:300]}")  # log first 300 chars
 
         data = response.json()
         transactions = data if isinstance(data, list) else data.get('data', [])
 
-        whale_transactions = transactions[:5]
+        whale_transactions = transactions[:5] if transactions else []
 
         if not whale_transactions:
-            return jsonify({'message': f'No whale activity detected for {wallet_address}'})
+            return jsonify({'message': f'No whale activity detected for {wallet_address}'}), 200
 
         ai_prompt = f"Analyze these Solana whale transactions from {wallet_address}: {whale_transactions}"
         ai_response = generate_multilingual_response(ai_prompt)
@@ -87,10 +90,10 @@ def whale_tracking():
             'whale_transactions': whale_transactions,
             'analysis': ai_response
         })
-
     except Exception as e:
         print(f"[ERROR] Whale Tracking Failed: {str(e)}")
         return jsonify({'error': f'Whale Tracking Failed: {str(e)}'}), 500
+
 
 # Market Sentiment Analysis
 @app.route('/sentiment', methods=['GET'])
