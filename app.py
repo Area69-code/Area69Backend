@@ -67,8 +67,9 @@ def whale_tracking():
         if not wallet_address:
             wallet_address = random.choice(SOLANA_WHALES)
 
-        url = f'{solscan_api_url}?account={wallet_address}&limit=20'
-        print(f"[DEBUG] Requesting Solscan URL: {url}")
+        # Use proxy to bypass Solscan block
+        url = f'https://corsproxy.io/?{solscan_api_url}?account={wallet_address}&limit=20'
+        print(f"[DEBUG] Requesting Proxied Solscan URL: {url}")
 
         response = requests.get(url)
         print(f"[DEBUG] Solscan Status Code: {response.status_code}")
