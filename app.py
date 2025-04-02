@@ -88,9 +88,9 @@ def whale_tracking():
             'analysis': ai_response
         })
 
-except Exception as e:
-    print(f"[ERROR] Whale Tracking Failed: {str(e)}")
-    return jsonify({'error': f'Whale Tracking Failed: {str(e)}'}), 500
+    except Exception as e:
+        print(f"[ERROR] Whale Tracking Failed: {str(e)}")
+        return jsonify({'error': f'Whale Tracking Failed: {str(e)}'}), 500
 
 # Market Sentiment Analysis
 @app.route('/sentiment', methods=['GET'])
