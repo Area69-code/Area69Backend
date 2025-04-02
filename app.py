@@ -65,10 +65,13 @@ def whale_tracking():
 
     try:
         url = f'{solscan_api_url}?account={wallet_address}&limit=20'
+        print(f"[DEBUG] Solscan API URL: {url}")
+    
         response = requests.get(url)
-        data = response.json()
-        transactions = data if isinstance(data, list) else data.get('data', [])
+        print(f"[DEBUG] Status Code: {response.status_code}")
+        print(f"[DEBUG] Raw Response: {response.text}")
 
+        data = response.json()
         # TEMP FIX: return unfiltered transactions
         whale_transactions = transactions[:5]
 
